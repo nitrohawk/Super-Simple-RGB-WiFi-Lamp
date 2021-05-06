@@ -130,3 +130,5 @@ The webserver code is listening for incoming WebSocket messages with a JSON payl
 
 ## Contributing
 If you would like to edit or use this project elsewhere you are more than welcome, I just ask that you let me know if you can, I'd love to see how the project is used and adapted. Changes and additions to Modes, the website, or documentation here on GitHub are also welcome. I just ask that you follow the basic contributing guide and make a pull request so I can both read and test your changes before implementing. 
+
+_adding comment_
