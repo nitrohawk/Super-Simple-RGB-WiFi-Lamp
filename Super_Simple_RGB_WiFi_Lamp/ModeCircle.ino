@@ -1,9 +1,14 @@
 class ModeCircle : public ModeBase
 {
 private:
-    int circleActiveLedNumber = 0;
+    int circleActiveLedNumber;
 public:
     ModeCircle() {}
+
+    virtual void initialize() {
+        circleActiveLedNumber = 0;
+    }
+
     virtual void render() {
         // First bring our logical arrays into a list of led numbers to iterate over
         int i;
@@ -27,9 +32,6 @@ public:
           circleActiveLedNumber += 1;
           if (circleActiveLedNumber == NUM_LEDS)
               circleActiveLedNumber = 0;
-
-          Serial.print("Active number: ");
-          Serial.println(circleActiveLedNumber);
 
           // Darken all LEDs to slightly dim the previous active LEDs
           fadeToBlackBy(ledString, NUM_LEDS, 80);

@@ -40,6 +40,10 @@
 #define CHIPSET WS2812B
 #define COLOR_ORDER GRB
 
+// Limit the maximum frame rate to prevent flickering. Values around 400 or
+// above cause flickering LEDs because of the WS2821 update frequency.
+#define FRAME_RATE 60
+
 // Set up LED's for each side - These arrays hold which leds are on what sides. For the basic rectangular shape in the example this relates to 4
 // sides and 4 arrays. You must subract 1 off the count of the LED when entering it as the array is 0 based. For example the first LED on the 
 // string is entered as 0.
@@ -57,7 +61,13 @@ String Password = "";
 class ModeBase
 {
 public:
+    /// Override this to initialize state specific variables
+    virtual void initialize();
+
+    // Is called once per frame to update the LEDs
     virtual void render();
+
+    // Update config member variables based on the handed over settings
     virtual void applyConfig(JsonVariant& settings);
 };
 
@@ -69,12 +79,13 @@ bool checkFlashConfig();
 void getConfig();
 bool sendConfigViaWS();
 void saveConfigItem(JsonDocument& jsonSetting);
-void parseConfig(JsonDocument& jsonMessage, bool sendViaWebsockets);
+void parseConfig(JsonDocument& jsonMessage);
+void addLampInfo(JsonDocument& jsonMessage);
 // LEDs.ino
 void ledStringInit();
 void ledModeInit();
 void handleMode();
-void adjustBrightness();
+void adjustBrightnessAndSwitchMode();
 // NTP.ino
 void handleNTP();
 bool getNTPServerIP(const char *_ntpServerName, IPAddress &_ntpServerIp);
@@ -153,6 +164,7 @@ String  currentMode           = Mode;                                 // Placeho
 String  previousMode          = "";                                   // Placeholder variable for changing mode
 bool    previousState         = false;                                // Placeholder variable for changing state
 float   modeChangeFadeAmount  = 0;                                    // Place holder for global brightness during mode change
+String  SketchName            = __FILE__;                             // Name of the sketch file (used for info page)
 
 // Setup Method - Runs only once before the main loop. Useful for setting things up
 void setup() {
@@ -195,7 +207,7 @@ void loop() {
     // Handle mDNS 
     MDNS.update();
 
-    // // Handle the webserver
+    // Handle the webserver
     restServer.handleClient();
     
     // Handle Websockets
